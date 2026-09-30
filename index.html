@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://widget.intercom.io https://js.intercomcdn.com https://app.intercom.io; connect-src 'self' https://script.google.com https://script.googleusercontent.com https://*.intercom.io wss://*.intercom.io https://*.intercomcdn.com https://*.intercomcdn.eu https://uploads.intercomusercontent.com; img-src 'self' data: https://*.intercomcdn.com https://*.intercomassets.com https://*.intercomusercontent.com https://*.intercom.io; font-src https://js.intercomcdn.com; media-src https://js.intercomcdn.com; style-src 'self' 'unsafe-inline'; frame-src https://*.intercom.io https://intercom-sheets.com https://*.intercomcdn.com; child-src https://*.intercom.io https://intercom-sheets.com; form-action 'self'; base-uri 'self'">
+<meta name="referrer" content="no-referrer">
+<title>Poll Worker Support</title>
+<link rel="stylesheet" href="style.css"></head><body>
+<main>
+<section id="gate">
+<h1>Poll Worker Support</h1>
+<p>Choose your polling location and enter the PIN from your election office to start a chat.</p>
+<form id="form" autocomplete="off">
+<label for="loc">Polling location</label>
+<select id="loc" required disabled><option value="">Loading locations...</option></select>
+<label for="pin" class="gap">PIN</label>
+<input id="pin" type="password" required autocomplete="off" autocapitalize="off" spellcheck="false">
+<button id="go" type="submit">Start chat</button>
+<p class="err" id="msg" role="alert"></p>
+</form>
+</section>
+<section id="live" hidden>
+<h1>Poll Worker Support</h1>
+<p id="where"></p>
+<p>The chat opens in the corner of this page. If you close it, use the button below to open it again.</p>
+<button id="reopen" type="button">Open chat</button>
+</section>
+</main>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body></html>
