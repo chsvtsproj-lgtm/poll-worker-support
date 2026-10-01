@@ -6,7 +6,7 @@
       loc = document.getElementById('loc'), nameEl = document.getElementById('name'), phoneEl = document.getElementById('phone'), where = document.getElementById('where');
   var API = window.API_URL || '';
   var configured = /^https:\/\/script\.google\.com\//.test(API);
-  var MAX_SESSION_MS = 2 * 60 * 60 * 1000; // hard limit, enforced here even with no network
+  var MAX_SESSION_MS = 6 * 60 * 60 * 1000; // hard limit, enforced here even with no network
   var CHECK_MS = 2 * 60 * 1000;            // how often to ask the server if the session is still open
   var ENDED_MSG = 'Your session has ended. Please sign in again.';
 
@@ -25,7 +25,7 @@
   }
 
   // Works out the local deadline from the server's remaining seconds (avoids clock skew),
-  // never later than 2 hours from the first sign-in on this page.
+  // never later than 6 hours from the first sign-in on this page.
   function setDeadline(j, cap) {
     var left = (typeof j.sessionExpiresIn === 'number' && j.sessionExpiresIn > 0) ? j.sessionExpiresIn * 1000 : MAX_SESSION_MS;
     deadline = Math.min(Date.now() + Math.min(left, MAX_SESSION_MS), cap || Infinity);
