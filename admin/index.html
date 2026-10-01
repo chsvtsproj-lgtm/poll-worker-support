@@ -38,6 +38,15 @@
 <button id="reset" type="button" class="secondary">Clear PIN lockout</button>
 <p class="meta" id="pause"></p>
 <hr>
+<h2>Signed-in poll workers</h2>
+<p class="meta">Each sign-in lasts 2 hours. Logging someone out closes their chat within about 2 minutes.</p>
+<p class="meta" id="sessState"></p>
+<ul class="sessions" id="sessList"></ul>
+<button id="sessRefresh" type="button" class="secondary">Refresh list</button>
+<button id="endAll" type="button" class="secondary">Log out everyone</button>
+<p class="ok" id="sessMsg" role="status"></p>
+<p class="err" id="sessErr" role="alert"></p>
+<hr>
 <button id="out" type="button" class="secondary">Sign out</button>
 </section>
 </main>

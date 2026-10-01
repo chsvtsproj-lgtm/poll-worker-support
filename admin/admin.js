@@ -23,6 +23,7 @@
           ? 'A PIN is set. It was last changed ' + new Date(j.pinUpdated).toLocaleString() + '. For security the current PIN cannot be shown; set a new one if it is lost.'
           : 'No PIN is set yet, so poll workers cannot start a chat. Set one below.';
         $('pause').textContent = j.pinPaused ? 'PIN sign-in is currently paused because of repeated wrong attempts. Clear the lockout to resume.' : '';
+        loadSessions();
       } else { setToken(''); login.hidden = false; panel.hidden = true; }
     }).catch(function () { $('loginMsg').textContent = 'Could not reach the server.'; });
   }
@@ -64,6 +65,58 @@
     call('resetLockout').then(function (j) {
       if (j.ok) { $('msg').textContent = 'Lockout cleared.'; refresh(); } else refresh();
     });
+  });
+
+  // ---------- signed-in poll workers ----------
+  var OLD_BACKEND = 'Session controls need the updated back end. Paste the new Code.gs into Apps Script and deploy a new version.';
+  function sessMsgs(ok, err) { $('sessMsg').textContent = ok || ''; $('sessErr').textContent = err || ''; }
+  function when(ms) { return new Date(ms).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+  function line(cls, text) { var p = document.createElement('p'); p.className = cls; p.textContent = text; return p; }
+
+  function loadSessions() {
+    var list = $('sessList');
+    call('admin_sessions').then(function (j) {
+      while (list.firstChild) list.removeChild(list.firstChild);
+      if (j.error === 'unauthorized') { refresh(); return; }
+      if (j.error === 'not_found') { $('sessState').textContent = OLD_BACKEND; $('endAll').disabled = true; return; }
+      if (!j.ok || !Array.isArray(j.sessions)) { $('sessState').textContent = 'Could not load the list.'; return; }
+      $('endAll').disabled = j.sessions.length === 0;
+      $('sessState').textContent = j.sessions.length === 0 ? 'Nobody is signed in.'
+        : j.sessions.length + (j.sessions.length === 1 ? ' poll worker is' : ' poll workers are') + ' signed in.';
+      j.sessions.forEach(function (s) {
+        var li = document.createElement('li');
+        li.appendChild(line('who', String(s.name || '') + (s.phoneLast4 ? ' (phone ending ' + String(s.phoneLast4) + ')' : '')));
+        li.appendChild(line('meta', String(s.location || '')));
+        li.appendChild(line('meta', 'Signed in ' + when(s.created) + ', ends ' + when(s.exp)));
+        var btn = document.createElement('button');
+        btn.type = 'button'; btn.className = 'secondary'; btn.textContent = 'Log out';
+        btn.addEventListener('click', function () {
+          sessMsgs(); btn.disabled = true;
+          call('admin_end_session', { id: String(s.id) }).then(function (r) {
+            if (r.ok) { sessMsgs('Logged out ' + String(s.name || 'that poll worker') + '.'); loadSessions(); }
+            else if (r.error === 'unauthorized') refresh();
+            else if (r.error === 'not_found') sessMsgs('', OLD_BACKEND);
+            else { btn.disabled = false; sessMsgs('', 'Could not log out that session.'); }
+          }).catch(function () { btn.disabled = false; sessMsgs('', 'Could not reach the server.'); });
+        });
+        li.appendChild(btn);
+        list.appendChild(li);
+      });
+    }).catch(function () { $('sessState').textContent = 'Could not reach the server.'; });
+  }
+
+  $('sessRefresh').addEventListener('click', function () { sessMsgs(); loadSessions(); });
+
+  $('endAll').addEventListener('click', function () {
+    sessMsgs();
+    if (!confirm('Log out every signed-in poll worker? Their chats will close and they must sign in again.')) return;
+    $('endAll').disabled = true;
+    call('admin_end_all').then(function (j) {
+      if (j.ok) { sessMsgs('Logged out ' + Number(j.ended || 0) + ' session(s).'); loadSessions(); }
+      else if (j.error === 'unauthorized') refresh();
+      else if (j.error === 'not_found') sessMsgs('', OLD_BACKEND);
+      else { $('endAll').disabled = false; sessMsgs('', 'Could not log everyone out.'); }
+    }).catch(function () { $('endAll').disabled = false; sessMsgs('', 'Could not reach the server.'); });
   });
 
   $('out').addEventListener('click', function () {
