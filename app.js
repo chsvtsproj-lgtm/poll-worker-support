@@ -3,7 +3,7 @@
       go = document.getElementById('go'), msg = document.getElementById('msg'),
       gate = document.getElementById('gate'), live = document.getElementById('live'),
       reopen = document.getElementById('reopen'),
-      loc = document.getElementById('loc'), nameEl = document.getElementById('name'), where = document.getElementById('where');
+      loc = document.getElementById('loc'), nameEl = document.getElementById('name'), phoneEl = document.getElementById('phone'), where = document.getElementById('where');
   var API = window.API_URL || '';
   var configured = /^https:\/\/script\.google\.com\//.test(API);
 
@@ -19,7 +19,7 @@
     try { if (cfg.userId) localStorage.setItem('pw_uid', cfg.userId); } catch (e) {}
     var settings = { api_base: cfg.apiBase, app_id: cfg.appId };
     if (cfg.jwt) settings.intercom_user_jwt = cfg.jwt;
-    else { settings.user_type = 'poll_worker'; settings.polling_location = cfg.location; settings.name = cfg.name; }
+    else { settings.user_type = 'poll_worker'; settings.polling_location = cfg.location; settings.name = cfg.name; settings.phone = cfg.phone; }
     where.textContent = (cfg.name ? cfg.name + ', ' : '') + 'Polling location: ' + cfg.location;
     window.intercomSettings = settings;
 
@@ -49,7 +49,8 @@
       msg.textContent = 'Support chat is not set up yet. Contact your election office.';
       return;
     }
-    fetch(API + '?action=locations').then(function (r) { return r.json(); }).then(function (j) {
+    // Served from this site so it loads even where Google script addresses are filtered.
+    fetch('locations.json', { cache: 'no-cache' }).then(function (r) { return r.json(); }).then(function (j) {
       loc.innerHTML = '';
       var first = document.createElement('option');
       first.value = ''; first.textContent = 'Select your polling location';
@@ -71,11 +72,15 @@
     if (!configured) return;
     var nm = nameEl.value.replace(/\s+/g, ' ').trim();
     if (!nm) { msg.textContent = 'Enter your name.'; return; }
+    var ph = phoneEl.value.trim();
+    var phd = ph.replace(/[^0-9]/g, '');
+    if (phd.length < 10 || phd.length > 15) { msg.textContent = 'Enter a phone number with area code.'; return; }
     go.disabled = true;
-    post({ action: 'verify', pin: pin.value, userId: savedId(), location: loc.value, name: nm })
+    post({ action: 'verify', pin: pin.value, userId: savedId(), location: loc.value, name: nm, phone: ph })
       .then(function (j) {
         if (j.appId) { pin.value = ''; start(j); }
         else if (j.error === 'invalid_pin') msg.textContent = 'That PIN is not correct.';
+        else if (j.error === 'invalid_phone') msg.textContent = 'Enter a phone number with area code.';
         else if (j.error === 'invalid_name') msg.textContent = 'Enter your name (80 characters or fewer).';
         else if (j.error === 'invalid_location') msg.textContent = 'Choose your polling location from the list.';
         else if (j.error === 'locked') msg.textContent = 'Sign-in is paused after too many wrong attempts. Wait 10 minutes, then try again.';

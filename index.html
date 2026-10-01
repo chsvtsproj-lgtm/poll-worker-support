@@ -9,10 +9,12 @@
 <main>
 <section id="gate">
 <h1>Poll Worker Support</h1>
-<p>Enter your name, choose your polling location, and enter the PIN from your election office to start a chat.</p>
+<p>Enter your name and phone number, choose your polling location, and enter the PIN from your election office to start a chat.</p>
 <form id="form" autocomplete="off">
 <label for="name">Your name</label>
 <input id="name" type="text" required maxlength="80" autocomplete="name" autocapitalize="words" spellcheck="false">
+<label for="phone" class="gap">Phone number</label>
+<input id="phone" type="tel" required maxlength="25" autocomplete="tel" inputmode="tel" placeholder="843-555-0123">
 <label for="loc" class="gap">Polling location</label>
 <select id="loc" required disabled><option value="">Loading locations...</option></select>
 <label for="pin" class="gap">PIN</label>
