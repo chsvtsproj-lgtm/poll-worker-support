@@ -1,7 +1,7 @@
 (function () {
   var $ = function (id) { return document.getElementById(id); };
   var login = $('login'), panel = $('panel');
-  var API = window.API_URL || '';
+  var API = window.RELAY_URL || window.API_URL || ''; // relay replaces API_URL when set
   var token = '';
   try { token = sessionStorage.getItem('pw_admin') || ''; } catch (e) {}
 

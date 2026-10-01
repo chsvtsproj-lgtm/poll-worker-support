@@ -4,8 +4,10 @@
       gate = document.getElementById('gate'), live = document.getElementById('live'),
       reopen = document.getElementById('reopen'),
       loc = document.getElementById('loc'), nameEl = document.getElementById('name'), phoneEl = document.getElementById('phone'), where = document.getElementById('where');
-  var API = window.API_URL || '';
-  var configured = /^https:\/\/script\.google\.com\//.test(API);
+  // RELAY_URL (Cloudflare Worker) replaces API_URL entirely when set.
+  var API = window.RELAY_URL || window.API_URL || '';
+  var configured = /^https:\/\/script\.google\.com\//.test(API) ||
+      /^https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.workers\.dev\/?$/.test(API);
   var MAX_SESSION_MS = 6 * 60 * 60 * 1000; // hard limit, enforced here even with no network
   var CHECK_MS = 2 * 60 * 1000;            // how often to ask the server if the session is still open
   var ENDED_MSG = 'Your session has ended. Please sign in again.';
@@ -165,6 +167,7 @@
           watch();
         }
         else if (j.error === 'invalid_pin') msg.textContent = 'That PIN is not correct.';
+        else if (j.error === 'outside_us') msg.textContent = 'Sign-in is only available from the United States. If you use a VPN, turn it off and try again.';
         else if (j.error === 'invalid_phone') msg.textContent = 'Enter a phone number with area code.';
         else if (j.error === 'invalid_name') msg.textContent = 'Enter your name (80 characters or fewer).';
         else if (j.error === 'invalid_location') msg.textContent = 'Choose your polling location from the list.';
