@@ -6,4 +6,4 @@ window.API_URL = "https://script.google.com/macros/s/AKfycbxVIKBEYd7aAaOQw1BopDl
 // When set, the pages use ONLY this URL (no fallback to API_URL). Leave empty to use API_URL.
 // The relay origin must also be listed in connect-src in index.html and admin/index.html
 // (worker/apply-relay-url.sh does all of this).
-window.RELAY_URL = "https://poll-worker-relay.chsvotes-support.workers.dev";
+window.RELAY_URL = "https://poll-worker-relay.chsvotes.workers.dev";
